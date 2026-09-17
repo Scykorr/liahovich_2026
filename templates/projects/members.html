@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Участники{% endblock %}
+{% block content %}
+<h1 class="h3">Участники: {{ project.name }}</h1>
+<form method="post" class="card card-body mb-3 col-md-6">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-primary">Добавить / обновить</button>
+</form>
+<table class="table">
+  <thead><tr><th>Пользователь</th><th>Роль</th><th></th></tr></thead>
+  <tbody>
+  {% for item in memberships %}
+    <tr>
+      <td>{{ item.user.username }}</td>
+      <td>{{ item.get_role_display }}</td>
+      <td>
+        <form method="post" action="{% url 'projects:member_delete' project.uuid item.id %}">
+          {% csrf_token %}
+          <button class="btn btn-sm btn-outline-danger">Удалить</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Импорт{% endblock %}
+{% block content %}
+<h1 class="h3">Загрузка файла — {{ project.name }}</h1>
+<p class="text-muted">Шаг 1 из 3. Допустимы CSV и XLSX. Файл сначала помещается в карантин.</p>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<form method="post" enctype="multipart/form-data" class="card card-body col-md-6">
+  {% csrf_token %}
+  <input class="form-control mb-3" type="file" name="file" accept=".csv,.xlsx" required>
+  <button class="btn btn-primary">Загрузить</button>
+</form>
+{% endblock %}

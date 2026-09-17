@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Качество данных{% endblock %}
+{% block content %}
+<h1 class="h3">Качество данных v{{ dataset.version }}</h1>
+<p>Ошибки: {{ error_count }}. Предупреждения: {{ warning_count }}. SHA-256: <code>{{ dataset.sha256 }}</code></p>
+{% if error_count %}
+<div class="alert alert-danger">Ошибки блокируют запуск анализа. Исправьте файл и загрузите новую версию.</div>
+{% elif warning_count and not dataset.warnings_acknowledged %}
+<div class="alert alert-warning">Есть предупреждения. Подтвердите их, чтобы разрешить запуск.</div>
+<form method="post">{% csrf_token %}<button class="btn btn-warning" name="ack" value="1">Подтвердить предупреждения</button></form>
+{% else %}
+<div class="alert alert-success">Набор готов к запуску анализа.</div>
+<a class="btn btn-primary" href="{% url 'projects:run_create' project.uuid %}">Настроить запуск</a>
+{% endif %}
+<form class="row g-2 my-3" method="get">
+  <div class="col-auto">
+    <select class="form-select" name="level">
+      <option value="">Все уровни</option>
+      <option value="error" {% if level == "error" %}selected{% endif %}>Ошибки</option>
+      <option value="warning" {% if level == "warning" %}selected{% endif %}>Предупреждения</option>
+    </select>
+  </div>
+  <div class="col-auto">
+    <select class="form-select" name="field">
+      <option value="">Все поля</option>
+      {% for item in fields %}
+      <option value="{{ item }}" {% if field == item %}selected{% endif %}>{{ item }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto"><button class="btn btn-outline-secondary">Фильтр</button></div>
+  <div class="col-auto"><a class="btn btn-outline-primary" href="{% url 'projects:dataset_issues_csv' project.uuid dataset.uuid %}">CSV ошибок</a></div>
+</form>
+<table class="table table-sm">
+  <thead><tr><th>Уровень</th><th>Код</th><th>Поле</th><th>Строка</th><th>Сообщение</th></tr></thead>
+  <tbody>
+  {% for issue in issues %}
+    <tr class="{% if issue.level == 'error' %}table-danger{% else %}table-warning{% endif %}">
+      <td>{{ issue.get_level_display }}</td>
+      <td>{{ issue.code }}</td>
+      <td>{{ issue.field }}</td>
+      <td>{{ issue.row_number }}</td>
+      <td>{{ issue.message }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5">Замечаний нет.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

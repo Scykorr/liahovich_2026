@@ -1,0 +1,99 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-liahovich}
+      POSTGRES_USER: ${POSTGRES_USER:-liahovich}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-liahovich}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-liahovich} -d ${POSTGRES_DB:-liahovich}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  web:
+    build: .
+    image: liahovich-2026:local
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
+      DATABASE_URL: postgres://${POSTGRES_USER:-liahovich}:${POSTGRES_PASSWORD:-liahovich}@db:5432/${POSTGRES_DB:-liahovich}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      DJANGO_SECURE_SSL_REDIRECT: "false"
+      DJANGO_SESSION_COOKIE_SECURE: "false"
+      DJANGO_CSRF_COOKIE_SECURE: "false"
+      DJANGO_SECURE_HSTS_SECONDS: "0"
+    ports:
+      - "${WEB_PORT:-8000}:8000"
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health/"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  worker:
+    image: liahovich-2026:local
+    build: .
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
+      DATABASE_URL: postgres://${POSTGRES_USER:-liahovich}:${POSTGRES_PASSWORD:-liahovich}@db:5432/${POSTGRES_DB:-liahovich}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      DJANGO_SECURE_SSL_REDIRECT: "false"
+      DJANGO_SESSION_COOKIE_SECURE: "false"
+      DJANGO_CSRF_COOKIE_SECURE: "false"
+      DJANGO_SECURE_HSTS_SECONDS: "0"
+    command: ["celery", "-A", "config.celery", "worker", "-l", "info", "--concurrency", "2"]
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A config.celery inspect ping -d celery@$$HOSTNAME || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_data:
+  static_data:

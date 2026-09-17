@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Паспорт запуска{% endblock %}
+{% block content %}
+<h1 class="h3">Паспорт запуска</h1>
+{% include "includes/viz_disclaimer.html" with n_used=run.n_used n_excluded=run.n_excluded %}
+<dl class="row">
+  <dt class="col-sm-3">UUID</dt><dd class="col-sm-9"><code>{{ run.uuid }}</code></dd>
+  <dt class="col-sm-3">Seed</dt><dd class="col-sm-9">{{ run.seed }}</dd>
+  <dt class="col-sm-3">Статус</dt><dd class="col-sm-9">{{ run.get_status_display }}</dd>
+  <dt class="col-sm-3">SHA-256 данных</dt><dd class="col-sm-9"><code>{{ run.dataset.sha256 }}</code></dd>
+  <dt class="col-sm-3">Версии библиотек</dt><dd class="col-sm-9"><pre>{{ run.library_versions }}</pre></dd>
+  <dt class="col-sm-3">Конфиг</dt><dd class="col-sm-9"><pre>{{ run.config_json }}</pre></dd>
+</dl>
+<p>
+  <a class="btn btn-outline-primary" href="{% url 'projects:run_export' project.uuid run.uuid 'csv' %}">CSV назначений</a>
+  <a class="btn btn-outline-primary" href="{% url 'projects:run_export' project.uuid run.uuid 'xlsx' %}">XLSX</a>
+  <a class="btn btn-outline-primary" href="{% url 'projects:run_export' project.uuid run.uuid 'json' %}">JSON паспорта</a>
+  <a class="btn btn-outline-primary" href="{% url 'projects:run_export' project.uuid run.uuid 'html' %}">HTML-отчёт</a>
+  <a class="btn btn-outline-primary" href="{% url 'projects:run_export' project.uuid run.uuid 'pdf' %}">PDF</a>
+</p>
+{% endblock %}

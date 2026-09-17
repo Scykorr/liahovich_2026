@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.test
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/*.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements/dev.txt
+
+      - name: Ruff
+        run: ruff check apps analytics_core config tests manage.py
+
+      - name: Tests and coverage
+        run: |
+          pytest tests -p no:cacheprovider --tb=short \
+            --cov=analytics_core --cov=apps --cov-fail-under=80 \
+            --cov-report=term-missing
+          coverage report --include="analytics_core/*" --fail-under=90
+
+      - name: Django deploy check
+        env:
+          DJANGO_SECRET_KEY: ci-placeholder-secret-not-for-production-use
+          DJANGO_ALLOWED_HOSTS: example.test
+          DJANGO_CSRF_TRUSTED_ORIGINS: https://example.test
+        run: python manage.py check --deploy --settings=config.settings.production

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Пользователи{% endblock %}
+{% block content %}
+<h1 class="h3">Пользователи</h1>
+<form method="post" class="card card-body mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-primary">Создать</button>
+</form>
+<table class="table table-sm">
+  <thead><tr><th>Логин</th><th>Роль</th><th>Активен</th></tr></thead>
+  <tbody>
+  {% for item in users %}
+    <tr><td>{{ item.username }}</td><td>{{ item.get_role_display }}</td><td>{{ item.is_active|yesno:"да,нет" }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Профиль модели{% endblock %}
+{% block content %}
+<h1 class="h3">Модель k={{ candidate.k }}</h1>
+{% include "includes/viz_disclaimer.html" with n_used=n_used n_excluded=n_excluded denominator="УИК, прошедшие отбор признаков" %}
+<p>Признаки: {{ candidate.features|join:", " }}. Scaler: {{ candidate.scaler }}. total_score={{ candidate.total_score|floatformat:3 }}</p>
+<form method="post" class="mb-3">
+  {% csrf_token %}
+  <button class="btn btn-primary" name="select" value="1">Выбрать модель</button>
+  <button class="btn btn-outline-success" name="publish" value="1">Опубликовать отчёт</button>
+</form>
+<h2 class="h5">Размеры кластеров</h2>
+<table class="table table-sm col-md-6">
+  <thead><tr><th>Кластер</th><th>Размер</th><th>Доля</th><th>Центры</th></tr></thead>
+  <tbody>
+  {% for profile in profiles %}
+    <tr>
+      <td>{{ profile.cluster_id }}</td>
+      <td>{{ profile.size }}</td>
+      <td>{{ profile.share|floatformat:3 }}</td>
+      <td class="small">{{ profile.centers }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<div class="row">
+  <div class="col-md-6"><div id="chart-box"></div></div>
+  <div class="col-md-6"><div id="chart-sil"></div></div>
+</div>
+<div id="chart-tik" class="mt-3"></div>
+<h2 class="h5 mt-4">УИК</h2>
+<table class="table table-sm">
+  <thead><tr><th>ТИК</th><th>УИК</th><th>Кластер</th><th>Расстояние до центра</th></tr></thead>
+  <tbody>
+  {% for item in assignments %}
+    <tr>
+      <td>{{ item.record.territory_code }}</td>
+      <td>{{ item.record.precinct_code }}</td>
+      <td>{{ item.cluster_id }}</td>
+      <td>{{ item.distance_to_center|floatformat:4 }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+{% block extra_js %}
+<script>
+async function loadChart(kind, target) {
+  const res = await fetch(`/api/candidates/{{ candidate.id }}/charts/${kind}/`);
+  const payload = await res.json();
+  if (kind === "boxplot") {
+    const traces = [];
+    for (const [feature, clusters] of Object.entries(payload.data)) {
+      for (const [cluster, stats] of Object.entries(clusters)) {
+        traces.push({
+          y: [stats.min, stats.q1, stats.median, stats.q3, stats.max],
+          type: "box",
+          name: feature + " / " + cluster,
+        });
+      }
+    }
+    Plotly.newPlot(target, traces, {title: "Boxplot (знаменатель: УИК отбора)"});
+  }
+  if (kind === "silhouette") {
+    Plotly.newPlot(target, [{y: payload.data.samples, type: "bar"}], {title: "Silhouette samples"});
+  }
+  if (kind === "tik") {
+    const territories = Object.keys(payload.data);
+    const traces = [];
+    const clusters = new Set();
+    territories.forEach(t => Object.keys(payload.data[t]).forEach(c => clusters.add(c)));
+    [...clusters].forEach(c => {
+      traces.push({x: territories, y: territories.map(t => payload.data[t][c] || 0), type: "bar", name: "кластер " + c});
+    });
+    Plotly.newPlot(target, traces, {barmode: "stack", title: "Распределение по ТИК"});
+  }
+}
+loadChart("boxplot", "chart-box");
+loadChart("silhouette", "chart-sil");
+loadChart("tik", "chart-tik");
+</script>
+{% endblock %}

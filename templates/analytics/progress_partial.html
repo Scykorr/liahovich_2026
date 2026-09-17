@@ -1,0 +1,19 @@
+<div id="run-progress"
+     {% if run.status == "queued" or run.status == "running" %}
+     hx-get="{% url 'projects:run_progress' project.uuid run.uuid %}"
+     hx-trigger="every 2s"
+     hx-swap="outerHTML"
+     {% endif %}>
+  <p>Статус: <strong>{{ run.get_status_display }}</strong> — {{ run.progress_message }}</p>
+  <div class="progress mb-3">
+    <div class="progress-bar" style="width: {{ run.progress }}%">{{ run.progress }}%</div>
+  </div>
+  {% if run.error_message %}<div class="alert alert-danger">{{ run.error_message }}</div>{% endif %}
+  {% if run.status == "queued" or run.status == "running" %}
+  <form method="post">{% csrf_token %}<button class="btn btn-outline-danger" name="cancel" value="1">Отменить</button></form>
+  {% endif %}
+  {% if run.status == "succeeded" %}
+  <a class="btn btn-primary" href="{% url 'projects:run_candidates' project.uuid run.uuid %}">Кандидаты моделей</a>
+  <a class="btn btn-outline-secondary" href="{% url 'projects:run_passport' project.uuid run.uuid %}">Паспорт</a>
+  {% endif %}
+</div>

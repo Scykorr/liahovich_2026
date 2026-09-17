@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Проекты{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Проекты</h1>
+  {% if user.role != "viewer" or user_is_admin %}
+  <a class="btn btn-primary" href="{% url 'projects:create' %}">Новый проект</a>
+  {% endif %}
+</div>
+<div class="row g-3">
+  {% for project in projects %}
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5"><a href="{% url 'projects:detail' project.uuid %}">{{ project.name }}</a></h2>
+        <p class="text-muted small mb-0">{{ project.description|truncatechars:140 }}</p>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>Нет доступных проектов.</p>
+  {% endfor %}
+</div>
+{% endblock %}

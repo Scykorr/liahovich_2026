@@ -1,0 +1,2 @@
+territory_code,precinct_code,registered_voters,ballots_in_boxes,outside_ballots,valid_ballots,invalid_ballots,candidate_a,candidate_b
+0100,0001,1000,700,40,600,20,400,200

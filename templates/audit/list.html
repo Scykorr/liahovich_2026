@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Аудит{% endblock %}
+{% block content %}
+<h1 class="h3">Аудит проекта {{ project.name }}</h1>
+<table class="table table-sm">
+  <thead><tr><th>Время</th><th>Пользователь</th><th>Действие</th><th>Объект</th></tr></thead>
+  <tbody>
+  {% for event in events %}
+    <tr>
+      <td>{{ event.created_at }}</td>
+      <td>{{ event.actor }}</td>
+      <td>{{ event.action }}</td>
+      <td class="small">{{ event.object_uuid }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

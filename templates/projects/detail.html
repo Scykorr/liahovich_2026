@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }}{% endblock %}
+{% block content %}
+<h1 class="h3">{{ project.name }}</h1>
+<p>{{ project.description }}</p>
+<p>
+  <a class="btn btn-sm btn-primary" href="{% url 'projects:dataset_upload' project.uuid %}">Импорт данных</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'projects:run_create' project.uuid %}">Новый запуск</a>
+  <a class="btn btn-sm btn-outline-secondary" href="{% url 'projects:members' project.uuid %}">Участники</a>
+  <a class="btn btn-sm btn-outline-secondary" href="{% url 'projects:audit' project.uuid %}">Аудит</a>
+</p>
+<div class="row">
+  <div class="col-md-6">
+    <h2 class="h5">Версии данных</h2>
+    <table class="table table-sm">
+      <thead><tr><th>Версия</th><th>Статус</th><th>Строк</th><th>SHA-256</th></tr></thead>
+      <tbody>
+      {% for ds in datasets %}
+        <tr>
+          <td><a href="{% url 'projects:dataset_quality' project.uuid ds.uuid %}">v{{ ds.version }}</a></td>
+          <td>{{ ds.get_status_display }}</td>
+          <td>{{ ds.row_count }}</td>
+          <td class="small font-monospace">{{ ds.sha256|slice:":12" }}…</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-md-6">
+    <h2 class="h5">Запуски</h2>
+    <table class="table table-sm">
+      <thead><tr><th>UUID</th><th>Статус</th><th>Seed</th></tr></thead>
+      <tbody>
+      {% for run in runs %}
+        <tr>
+          <td><a href="{% url 'projects:run_progress' project.uuid run.uuid %}">{{ run.uuid|truncatechars:13 }}</a></td>
+          <td>{{ run.get_status_display }}</td>
+          <td>{{ run.seed }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

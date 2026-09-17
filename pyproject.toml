@@ -1,0 +1,37 @@
+[project]
+name = "liahovich-2026"
+version = "1.0.0"
+description = "Воспроизводимый кластерный анализ агрегированных результатов голосования по УИК"
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+src = ["apps", "analytics_core", "config", "tests"]
+exclude = ["migrations", ".venv", "media", "staticfiles"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "DJ"]
+ignore = ["N806", "N803", "E501", "B905"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "analytics_core", "config"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["apps", "analytics_core"]
+omit = ["*/migrations/*", "*/tests/*"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_empty = true

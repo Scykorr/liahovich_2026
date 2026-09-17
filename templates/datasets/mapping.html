@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load dict_extras %}
+{% block title %}Сопоставление колонок{% endblock %}
+{% block content %}
+<h1 class="h3">Сопоставление колонок</h1>
+<p class="text-muted">Шаг 2 из 3. Коды территорий и УИК считываются как строки. Импортированные проценты не используются.</p>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<form method="post">
+  {% csrf_token %}
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <label class="form-label">Кодировка CSV</label>
+      <input class="form-control" name="encoding" value="{{ dataset.encoding }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Разделитель</label>
+      <input class="form-control" name="delimiter" value="{{ dataset.delimiter }}">
+    </div>
+  </div>
+  <div class="row">
+    {% for field in canonical %}
+    <div class="col-md-4 mb-2">
+      <label class="form-label">{{ labels|get_item:field }}</label>
+      <select class="form-select" name="map_{{ field }}" required>
+        <option value="">—</option>
+        {% for col in columns %}
+          <option value="{{ col }}" {% if mapping|get_item:field == col %}selected{% endif %}>{{ col }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endfor %}
+  </div>
+  <h2 class="h5 mt-3">Кандидаты (минимум два)</h2>
+  {% for col in columns %}
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="candidates" value="{{ col }}" id="c{{ forloop.counter }}" {% if col in candidate_names %}checked{% endif %}>
+      <label class="form-check-label" for="c{{ forloop.counter }}">{{ col }}</label>
+    </div>
+  {% endfor %}
+  <button class="btn btn-primary mt-3">Проверить данные</button>
+</form>
+<h2 class="h5 mt-4">Предпросмотр (20 строк)</h2>
+<div class="table-responsive">
+<table class="table table-sm table-bordered">
+  <thead><tr>{% for col in columns %}<th>{{ col }}</th>{% endfor %}</tr></thead>
+  <tbody>
+  {% for row in preview %}
+    <tr>{% for col in columns %}<td>{{ row|get_item:col }}</td>{% endfor %}</tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

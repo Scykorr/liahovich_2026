@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Кандидаты{% endblock %}
+{% block content %}
+<h1 class="h3">Кандидаты моделей</h1>
+<p>Рекомендован: {% if run.recommended_candidate %}#{{ run.recommended_candidate_id }} (k={{ run.recommended_candidate.k }}){% else %}нет{% endif %}</p>
+<table class="table table-sm table-striped">
+  <thead>
+    <tr>
+      <th><a href="?sort=k">k</a></th>
+      <th>Признаки</th>
+      <th><a href="?sort=-silhouette">Silhouette</a></th>
+      <th>CH</th>
+      <th>DB</th>
+      <th>min share</th>
+      <th><a href="?sort=-internal_score">internal</a></th>
+      <th>ARI</th>
+      <th><a href="?sort=-total_score">total</a></th>
+      <th>Отклонение</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for item in candidates %}
+    <tr>
+      <td><a href="{% url 'projects:candidate_detail' project.uuid run.uuid item.id %}">{{ item.k }}</a></td>
+      <td class="small">{{ item.features|join:", " }}</td>
+      <td>{{ item.silhouette|floatformat:3 }}</td>
+      <td>{{ item.calinski_harabasz|floatformat:1 }}</td>
+      <td>{{ item.davies_bouldin|floatformat:3 }}</td>
+      <td>{{ item.min_cluster_share|floatformat:3 }}</td>
+      <td>{{ item.internal_score|floatformat:3 }}</td>
+      <td>{{ item.ari_mean|floatformat:3 }}</td>
+      <td>{{ item.total_score|floatformat:3 }}</td>
+      <td>{% if item.rejected %}{{ item.reject_reason }}{% elif run.recommended_candidate_id == item.id %}рекомендована{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
