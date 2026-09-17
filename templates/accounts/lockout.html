@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Блокировка входа{% endblock %}
-{% block content %}
-<div class="alert alert-danger">Слишком много неудачных попыток входа. Повторите позже.</div>
+{% block body_class %}auth-body{% endblock %}
+{% block chrome %}
+<div class="auth-form-wrap" style="min-height:100vh;">
+  <div class="auth-card">
+    <h2>Вход заблокирован</h2>
+    <p class="auth-hint mb-0">Слишком много неудачных попыток. Повторите позже.</p>
+  </div>
+</div>
 {% endblock %}

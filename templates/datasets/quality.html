@@ -1,6 +1,8 @@
 {% extends "base.html" %}
+{% load dict_extras %}
 {% block title %}Качество данных{% endblock %}
 {% block content %}
+<p class="page-kicker">Шаг 3 из 3</p>
 <h1 class="h3">Качество данных v{{ dataset.version }}</h1>
 <p>Ошибки: {{ error_count }}. Предупреждения: {{ warning_count }}. SHA-256: <code>{{ dataset.sha256 }}</code></p>
 {% if error_count %}
@@ -24,7 +26,7 @@
     <select class="form-select" name="field">
       <option value="">Все поля</option>
       {% for item in fields %}
-      <option value="{{ item }}" {% if field == item %}selected{% endif %}>{{ item }}</option>
+      <option value="{{ item }}" {% if field == item %}selected{% endif %}>{{ item|ru_label }}</option>
       {% endfor %}
     </select>
   </div>
@@ -38,7 +40,7 @@
     <tr class="{% if issue.level == 'error' %}table-danger{% else %}table-warning{% endif %}">
       <td>{{ issue.get_level_display }}</td>
       <td>{{ issue.code }}</td>
-      <td>{{ issue.field }}</td>
+      <td>{{ issue.field|ru_label }}</td>
       <td>{{ issue.row_number }}</td>
       <td>{{ issue.message }}</td>
     </tr>

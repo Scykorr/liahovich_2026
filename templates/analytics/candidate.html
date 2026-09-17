@@ -1,9 +1,11 @@
 {% extends "base.html" %}
+{% load dict_extras %}
 {% block title %}Профиль модели{% endblock %}
 {% block content %}
-<h1 class="h3">Модель k={{ candidate.k }}</h1>
+<p class="page-kicker">Модель</p>
+<h1 class="h3">Модель, {{ candidate.k|ru_clusters }}</h1>
 {% include "includes/viz_disclaimer.html" with n_used=n_used n_excluded=n_excluded denominator="УИК, прошедшие отбор признаков" %}
-<p>Признаки: {{ candidate.features|join:", " }}. Scaler: {{ candidate.scaler }}. total_score={{ candidate.total_score|floatformat:3 }}</p>
+<p>Признаки: {{ candidate.features|ru_features }}. Масштабирование: {{ candidate.scaler|ru_label }}. Итоговый балл: {{ candidate.total_score|floatformat:3 }}</p>
 <form method="post" class="mb-3">
   {% csrf_token %}
   <button class="btn btn-primary" name="select" value="1">Выбрать модель</button>
@@ -18,7 +20,7 @@
       <td>{{ profile.cluster_id }}</td>
       <td>{{ profile.size }}</td>
       <td>{{ profile.share|floatformat:3 }}</td>
-      <td class="small">{{ profile.centers }}</td>
+      <td class="small">{{ profile.centers|ru_centers }}</td>
     </tr>
   {% endfor %}
   </tbody>
@@ -45,6 +47,7 @@
 {% endblock %}
 {% block extra_js %}
 <script>
+const featureLabels = {turnout: "явка", outside: "вне участка", invalid: "недействительные"};
 async function loadChart(kind, target) {
   const res = await fetch(`/api/candidates/{{ candidate.id }}/charts/${kind}/`);
   const payload = await res.json();
@@ -55,14 +58,14 @@ async function loadChart(kind, target) {
         traces.push({
           y: [stats.min, stats.q1, stats.median, stats.q3, stats.max],
           type: "box",
-          name: feature + " / " + cluster,
+          name: (featureLabels[feature] || feature) + " / кластер " + cluster,
         });
       }
     }
-    Plotly.newPlot(target, traces, {title: "Boxplot (знаменатель: УИК отбора)"});
+    Plotly.newPlot(target, traces, {title: "Ящик с усами (знаменатель: УИК отбора)"});
   }
   if (kind === "silhouette") {
-    Plotly.newPlot(target, [{y: payload.data.samples, type: "bar"}], {title: "Silhouette samples"});
+    Plotly.newPlot(target, [{y: payload.data.samples, type: "bar"}], {title: "Значения силуэта"});
   }
   if (kind === "tik") {
     const territories = Object.keys(payload.data);

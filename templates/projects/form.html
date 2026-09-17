@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Новый проект{% endblock %}
 {% block content %}
-<h1 class="h3">Новый проект</h1>
-<form method="post" class="card card-body col-md-6">
+<p class="page-kicker">Проекты</p>
+<h1 class="h3 mb-3">Новый проект</h1>
+<form method="post" class="surface" style="max-width: 36rem;">
   {% csrf_token %}
-  {{ form.as_p }}
+  {% include "includes/form_fields.html" %}
   <button class="btn btn-primary">Создать</button>
 </form>
 {% endblock %}

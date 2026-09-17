@@ -1,3 +1,4 @@
+{% load dict_extras %}
 <!DOCTYPE html>
 <html lang="ru">
 <head><meta charset="utf-8"><title>Сводный отчёт</title></head>
@@ -5,9 +6,9 @@
 <h1>Сводный отчёт запуска {{ run.uuid }}</h1>
 <p>Знаменатель: УИК, прошедшие отбор. Использовано: {{ run.n_used }}. Исключено: {{ run.n_excluded }}.</p>
 <p>Кластеризация описывает статистические профили участков и не устанавливает причин и нарушений.</p>
-<p>Seed: {{ run.seed }}. SHA-256: {{ run.dataset.sha256 }}</p>
+<p>Зерно генератора: {{ run.seed }}. SHA-256: {{ run.dataset.sha256 }}</p>
 {% if candidate %}
-<p>Модель: k={{ candidate.k }}, признаки: {{ candidate.features }}, total_score={{ candidate.total_score }}</p>
+<p>Модель: {{ candidate.k|ru_clusters }}, признаки: {{ candidate.features|ru_features }}, итоговый балл={{ candidate.total_score }}</p>
 {% endif %}
 <pre>{{ run.config_json }}</pre>
 <pre>{{ run.library_versions }}</pre>

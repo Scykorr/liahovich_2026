@@ -1,14 +1,30 @@
 {% extends "base.html" %}
 {% block title %}Вход{% endblock %}
-{% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-4">
-    <h1 class="h4 mb-3">Вход</h1>
-    <form method="post" class="card card-body">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button class="btn btn-primary w-100">Войти</button>
-    </form>
-  </div>
+{% block body_class %}auth-body{% endblock %}
+{% block chrome %}
+<div class="auth-split">
+  <aside class="auth-panel">
+    <div class="auth-panel-inner">
+      <p class="auth-kicker">Кластерный анализ</p>
+      <h1>Анализ УИК</h1>
+      <p class="auth-lead">Рабочее место для импорта протоколов, проверки качества данных и сопоставления статистических профилей участков.</p>
+      <ul class="auth-points">
+        <li>Импорт CSV и XLSX с карантином</li>
+        <li>Воспроизводимые запуски по зерну генератора</li>
+        <li>Паспорт модели и экспорт отчётов</li>
+      </ul>
+    </div>
+  </aside>
+  <section class="auth-form-wrap">
+    <div class="auth-card">
+      <h2>Вход</h2>
+      <p class="auth-hint">Введите учётную запись администратора или аналитика.</p>
+      <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+        {% include "includes/form_fields.html" %}
+        <button class="btn btn-accent w-100" type="submit">Войти</button>
+      </form>
+    </div>
+  </section>
 </div>
 {% endblock %}

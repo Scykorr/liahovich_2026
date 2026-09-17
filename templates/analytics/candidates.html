@@ -1,28 +1,30 @@
 {% extends "base.html" %}
+{% load dict_extras %}
 {% block title %}Кандидаты{% endblock %}
 {% block content %}
+<p class="page-kicker">Результаты</p>
 <h1 class="h3">Кандидаты моделей</h1>
-<p>Рекомендован: {% if run.recommended_candidate %}#{{ run.recommended_candidate_id }} (k={{ run.recommended_candidate.k }}){% else %}нет{% endif %}</p>
+<p>Рекомендован: {% if run.recommended_candidate %}№{{ run.recommended_candidate_id }} ({{ run.recommended_candidate.k|ru_clusters }}){% else %}нет{% endif %}</p>
 <table class="table table-sm table-striped">
   <thead>
     <tr>
-      <th><a href="?sort=k">k</a></th>
+      <th><a href="?sort=k">Кластеры</a></th>
       <th>Признаки</th>
-      <th><a href="?sort=-silhouette">Silhouette</a></th>
-      <th>CH</th>
-      <th>DB</th>
-      <th>min share</th>
-      <th><a href="?sort=-internal_score">internal</a></th>
-      <th>ARI</th>
-      <th><a href="?sort=-total_score">total</a></th>
-      <th>Отклонение</th>
+      <th><a href="?sort=-silhouette">Силуэт</a></th>
+      <th>Калински–Харабаш</th>
+      <th>Дэвис–Болдин</th>
+      <th>Мин. доля</th>
+      <th><a href="?sort=-internal_score">Внутр. балл</a></th>
+      <th>Индекс Рэнда</th>
+      <th><a href="?sort=-total_score">Итоговый балл</a></th>
+      <th>Примечание</th>
     </tr>
   </thead>
   <tbody>
   {% for item in candidates %}
     <tr>
       <td><a href="{% url 'projects:candidate_detail' project.uuid run.uuid item.id %}">{{ item.k }}</a></td>
-      <td class="small">{{ item.features|join:", " }}</td>
+      <td class="small">{{ item.features|ru_features }}</td>
       <td>{{ item.silhouette|floatformat:3 }}</td>
       <td>{{ item.calinski_harabasz|floatformat:1 }}</td>
       <td>{{ item.davies_bouldin|floatformat:3 }}</td>

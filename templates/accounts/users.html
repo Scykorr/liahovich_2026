@@ -1,18 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Пользователи{% endblock %}
 {% block content %}
-<h1 class="h3">Пользователи</h1>
-<form method="post" class="card card-body mb-4">
+<p class="page-kicker">Администрирование</p>
+<h1 class="h3 mb-3">Пользователи</h1>
+<form method="post" class="surface mb-4" style="max-width: 42rem;">
   {% csrf_token %}
-  {{ form.as_p }}
+  {% include "includes/form_fields.html" %}
   <button class="btn btn-primary">Создать</button>
 </form>
-<table class="table table-sm">
-  <thead><tr><th>Логин</th><th>Роль</th><th>Активен</th></tr></thead>
-  <tbody>
-  {% for item in users %}
-    <tr><td>{{ item.username }}</td><td>{{ item.get_role_display }}</td><td>{{ item.is_active|yesno:"да,нет" }}</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+<div class="surface">
+  <table class="table table-sm mb-0">
+    <thead><tr><th>Логин</th><th>Роль</th><th>Активен</th></tr></thead>
+    <tbody>
+    {% for item in users %}
+      <tr><td>{{ item.username }}</td><td>{{ item.get_role_display }}</td><td>{{ item.is_active|yesno:"да,нет" }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

@@ -4,6 +4,8 @@ Production-ready Django-приложение для воспроизводимо
 
 Стек: Python 3.12, Django 5.2 LTS, PostgreSQL 16, Redis, Celery, pandas/numpy/scipy/scikit-learn/statsmodels, Plotly, Bootstrap 5, HTMX.
 
+Для пошагового локального запуска на Windows и Linux см. [LOCAL.md](LOCAL.md).
+
 ## Быстрый старт (Windows)
 
 ```powershell

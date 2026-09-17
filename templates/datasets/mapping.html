@@ -2,8 +2,9 @@
 {% load dict_extras %}
 {% block title %}Сопоставление колонок{% endblock %}
 {% block content %}
+<p class="page-kicker">Шаг 2 из 3</p>
 <h1 class="h3">Сопоставление колонок</h1>
-<p class="text-muted">Шаг 2 из 3. Коды территорий и УИК считываются как строки. Импортированные проценты не используются.</p>
+<p class="text-muted">Коды территорий и УИК считываются как строки. Импортированные проценты не используются.</p>
 {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
 <form method="post">
   {% csrf_token %}
