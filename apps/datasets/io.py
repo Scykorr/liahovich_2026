@@ -143,17 +143,37 @@ def guess_mapping(columns: list[str]) -> dict[str, str]:
     return mapping
 
 
+RESERVED_COLUMNS = {
+    "election_id",
+    "synthetic_group",
+    "group_label",
+    "label",
+    "labels",
+}
+
+
+def is_reserved_column(column: str) -> bool:
+    return _norm(column) in RESERVED_COLUMNS
+
+
+def is_reference_label_file(columns: list[str]) -> bool:
+    norms = {_norm(column) for column in columns}
+    has_label = "synthetic_group" in norms
+    has_ballots = bool(norms & {"valid_ballots", "ballots_in_boxes", "registered_voters", "действительные", "избиратели"})
+    return has_label and not has_ballots
+
+
 def guess_candidates(columns: list[str], mapping: dict[str, str]) -> list[str]:
     used = set(mapping.values())
     result = []
     for column in columns:
-        if column in used:
+        if column in used or is_reserved_column(column):
             continue
         norm = _norm(column)
         if norm.startswith("candidate") or "кандидат" in norm:
             result.append(column)
     if len(result) < 2:
-        result = [column for column in columns if column not in used]
+        result = [column for column in columns if column not in used and not is_reserved_column(column)]
     return result
 
 

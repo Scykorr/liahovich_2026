@@ -9,8 +9,10 @@
   <dt class="col-sm-3">Зерно генератора</dt><dd class="col-sm-9">{{ run.seed }}</dd>
   <dt class="col-sm-3">Статус</dt><dd class="col-sm-9">{{ run.get_status_display }}</dd>
   <dt class="col-sm-3">SHA-256 данных</dt><dd class="col-sm-9"><code>{{ run.dataset.sha256 }}</code></dd>
+  <dt class="col-sm-3">Сводка</dt><dd class="col-sm-9"><pre>{{ run.summary_json }}</pre></dd>
   <dt class="col-sm-3">Версии библиотек</dt><dd class="col-sm-9"><pre>{{ run.library_versions }}</pre></dd>
   <dt class="col-sm-3">Параметры</dt><dd class="col-sm-9"><pre>{{ run.config_json }}</pre></dd>
+  <dt class="col-sm-3">Предупреждения</dt><dd class="col-sm-9"><pre>{{ run.warnings_json }}</pre></dd>
 </dl>
 <p>
   <a class="btn btn-outline-primary" href="{% url 'projects:run_export' project.uuid run.uuid 'csv' %}">CSV назначений</a>

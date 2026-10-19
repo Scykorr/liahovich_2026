@@ -91,9 +91,31 @@ def export_passport_json(user, run: AnalysisRun, request=None) -> HttpResponse:
         "status": run.status,
         "n_used": run.n_used,
         "n_excluded": run.n_excluded,
+        "summary": run.summary_json,
+        "warnings": run.warnings_json,
         "recommended_candidate_id": run.recommended_candidate_id,
         "selected_candidate_id": run.selected_candidate_id,
         "created_at": run.created_at.isoformat(),
+        "candidates": [
+            {
+                "id": item.id,
+                "features": item.features,
+                "k": item.k,
+                "rejected": item.rejected,
+                "reject_reason": item.reject_reason,
+                "internal_score": item.internal_score,
+                "ari_mean": item.ari_mean,
+                "ari_p10": item.ari_p10,
+                "ari_p90": item.ari_p90,
+                "ari_sd": item.ari_sd,
+                "stability_successes": item.stability_successes,
+                "passes_stability": item.passes_stability,
+                "is_alternative": item.is_alternative,
+                "diagnostics": item.diagnostics,
+                "repeat_indices": (item.stability_json or {}).get("indices", []),
+            }
+            for item in run.candidates.all()
+        ],
     }
     raw = json.dumps(payload, ensure_ascii=False, indent=2)
     _store_artifact(run, run.selected_candidate, Artifact.Kind.EXPORT_JSON, _filename(run, "passport.json"), raw.encode("utf-8"))

@@ -28,12 +28,42 @@ def test_percentile_and_recommend(monkeypatch=None) -> None:
     assert inverted[0] > inverted[2]
 
 
-def test_recommend_simpler_when_close() -> None:
+def test_recommend_keeps_higher_internal_score_and_marks_alternative() -> None:
     items = [
-        _candidate(k=6, features=["a", "b", "c", "d"], total_score=0.80),
-        _candidate(k=2, features=["a", "b"], total_score=0.79),
+        _candidate(
+            k=6,
+            features=["a", "b", "c", "d"],
+            internal_score=0.90,
+            ari_mean=0.80,
+            ari_p10=0.70,
+            total_score=0.80,
+        ),
+        _candidate(k=2, features=["a", "b"], internal_score=0.89, ari_mean=0.99, ari_p10=0.95, total_score=0.79),
     ]
-    assert recommend_index(items, simplicity_delta=0.02) == 1
+    assert recommend_index(items, simplicity_delta=0.02) == 0
+    assert items[1].is_alternative is True
+    assert items[0].passes_stability is True
+
+
+def test_unstable_model_is_not_recommended() -> None:
+    items = [
+        _candidate(internal_score=0.99, ari_mean=0.50, ari_p10=0.40, total_score=0.99),
+        _candidate(k=3, features=["a", "b", "c"], internal_score=0.40, ari_mean=0.80, ari_p10=0.61, total_score=0.10),
+    ]
+    assert recommend_index(items) == 1
+
+
+def test_missing_stability_is_not_zero_filled() -> None:
+    from analytics_core.ranking import apply_total_scores
+
+    items = [
+        _candidate(internal_score=0.5, ari_mean=0.2, total_score=None, ari_percentile=None),
+        _candidate(k=3, internal_score=0.9, ari_mean=None, total_score=None, ari_percentile=None),
+    ]
+    apply_total_scores(items)
+    assert items[1].total_score is None
+    assert items[1].ari_percentile is None
+    assert items[0].total_score is not None
 
 
 def test_internal_and_total_ranks() -> None:

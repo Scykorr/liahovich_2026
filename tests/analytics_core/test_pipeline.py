@@ -39,6 +39,41 @@ def test_feature_frame_formulas() -> None:
     assert abs(row["cand_a"] + row["cand_b"] - 100) < 1e-6
 
 
+def test_fixed_leader_is_constant_across_rows() -> None:
+    from analytics_core.pipeline import fixed_leader_name
+
+    rows = [
+        PrecinctRow(2, "0100", "0001", 100, 100, 0, 100, 0, {"cand_a": 90, "cand_b": 10}),
+        PrecinctRow(3, "0100", "0002", 100, 100, 0, 100, 0, {"cand_a": 10, "cand_b": 90}),
+        PrecinctRow(4, "0200", "0003", 100, 80, 0, 80, 0, {"cand_a": 70, "cand_b": 10}),
+    ]
+    assert fixed_leader_name(rows) == "cand_a"
+    frame = build_feature_frame(rows)
+    assert frame.iloc[1]["leader_margin"] < 0
+    assert abs(frame.iloc[1]["opposition_sum"] - frame.iloc[1]["cand_b"]) < 1e-6
+
+
+def test_diagnostic_mode_rejects_exact_duplicate_only() -> None:
+    rows = _rows()
+    config = PipelineConfig(
+        seed=3,
+        k_min=2,
+        k_max=2,
+        feature_combo_min=2,
+        feature_combo_max=2,
+        subsample_repeats=0,
+        feature_screen_mode="diagnostic",
+        selected_features=["cand_a", "cand_b", "turnout"],
+    )
+    result = run_pipeline(rows, config)
+    duplicated = [item for item in result.candidates if item.features == ["cand_a", "cand_b"]]
+    assert duplicated
+    assert all(item.rejected and "дубл" in item.reject_reason for item in duplicated)
+    assert any(not item.rejected for item in result.candidates)
+    assert result.models_calculated == len(result.candidates)
+    assert result.models_admissible < result.models_calculated
+
+
 def test_pipeline_reproducible_and_scores() -> None:
     config = PipelineConfig(
         seed=11,
@@ -46,8 +81,8 @@ def test_pipeline_reproducible_and_scores() -> None:
         k_max=3,
         feature_combo_min=2,
         feature_combo_max=2,
-        bootstrap_repeats=5,
-        bootstrap_top_n=3,
+        subsample_repeats=5,
+        subsample_top_n=3,
         n_init=20,
     )
     first = run_pipeline(_rows(), config)

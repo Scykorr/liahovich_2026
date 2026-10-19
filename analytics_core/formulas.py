@@ -32,10 +32,24 @@ def opposition_sum(candidate_shares: dict[str, float], leader_key: str) -> float
     return sum(value for key, value in candidate_shares.items() if key != leader_key)
 
 
-def leader_margin(candidate_shares: dict[str, float]) -> float:
+def fixed_leader_key(candidate_totals: dict[str, float]) -> str:
+    if not candidate_totals:
+        raise DivisionByZeroError("Нет голосов кандидатов для выбора лидера")
+    return min(candidate_totals, key=lambda name: (-float(candidate_totals[name]), name))
+
+
+def leader_margin(candidate_shares: dict[str, float], leader_key: str | None = None) -> float:
     if not candidate_shares:
         raise DivisionByZeroError("Нет долей кандидатов для расчёта отрыва лидера")
-    ordered = sorted(candidate_shares.values(), reverse=True)
-    if len(ordered) == 1:
-        return ordered[0]
-    return ordered[0] - ordered[1]
+    if leader_key is None:
+        ordered = sorted(candidate_shares.values(), reverse=True)
+        if len(ordered) == 1:
+            return ordered[0]
+        return ordered[0] - ordered[1]
+    if leader_key not in candidate_shares:
+        raise DivisionByZeroError(f"Лидер «{leader_key}» отсутствует в долях кандидатов")
+    others = [value for key, value in candidate_shares.items() if key != leader_key]
+    leader = candidate_shares[leader_key]
+    if not others:
+        return leader
+    return leader - max(others)

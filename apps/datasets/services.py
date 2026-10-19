@@ -16,6 +16,7 @@ from apps.datasets.io import (
     CANONICAL_FIELDS,
     guess_candidates,
     guess_mapping,
+    is_reference_label_file,
     read_tabular,
     sanitize_filename,
     validate_upload,
@@ -68,6 +69,10 @@ def upload_dataset(*, user: User, project: Project, uploaded_file, request=None)
     dataset.sha256 = sha256_file(quarantine_path)
     dataset.file.save(stored, ContentFile(quarantine_path.read_bytes()), save=False)
     columns, rows, encoding, delimiter = read_tabular(quarantine_path)
+    if is_reference_label_file(columns):
+        raise ValidationError(
+            "Файл эталонных групп нельзя загружать как набор признаков. Он нужен только для внешней проверки."
+        )
     dataset.encoding = encoding
     dataset.delimiter = delimiter
     dataset.detected_columns = columns

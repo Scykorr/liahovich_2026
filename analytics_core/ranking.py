@@ -72,28 +72,50 @@ def apply_total_scores(
     internal_weight: float = 0.65,
     ari_weight: float = 0.35,
 ) -> None:
-    eligible = [item for item in candidates if not item.rejected and item.internal_score is not None]
+    eligible = [
+        item
+        for item in candidates
+        if not item.rejected and item.internal_score is not None and item.ari_mean is not None
+    ]
     if not eligible:
         return
-    ari_values = [item.ari_mean if item.ari_mean is not None else 0.0 for item in eligible]
-    ari_ranks = percentile_ranks(ari_values)
+    ari_ranks = percentile_ranks([item.ari_mean or 0.0 for item in eligible])
     for item, ari_rank in zip(eligible, ari_ranks, strict=True):
         item.ari_percentile = ari_rank
         item.total_score = total_score(item.internal_score or 0.0, ari_rank, internal_weight, ari_weight)
 
 
-def recommend_index(candidates: list[CandidateResult], simplicity_delta: float = 0.02) -> int | None:
-    scored = [
+def internal_sort_key(item: CandidateResult) -> tuple[float, int, int, str]:
+    return (-(item.internal_score or 0.0), len(item.features), item.k, ",".join(item.features))
+
+
+def recommend_index(
+    candidates: list[CandidateResult],
+    simplicity_delta: float = 0.02,
+    ari_mean_min: float = 0.75,
+    ari_p10_min: float = 0.60,
+) -> int | None:
+    for item in candidates:
+        item.is_alternative = False
+        item.passes_stability = bool(
+            not item.rejected
+            and item.ari_mean is not None
+            and item.ari_p10 is not None
+            and item.ari_mean >= ari_mean_min
+            and item.ari_p10 >= ari_p10_min
+        )
+    stable = [
         (index, item)
         for index, item in enumerate(candidates)
-        if not item.rejected and item.total_score is not None
+        if item.passes_stability and item.internal_score is not None
     ]
-    if not scored:
+    if not stable:
         return None
-    scored.sort(key=lambda pair: pair[1].total_score or 0.0, reverse=True)
-    best_index, best = scored[0]
-    for index, item in scored[1:]:
-        gap = (best.total_score or 0.0) - (item.total_score or 0.0)
-        if gap < simplicity_delta and item.complexity < best.complexity:
-            best_index, best = index, item
+    stable.sort(key=lambda pair: internal_sort_key(pair[1]))
+    best_index, best = stable[0]
+    best_score = best.internal_score or 0.0
+    for _index, item in stable[1:]:
+        gap = best_score - (item.internal_score or 0.0)
+        if gap < simplicity_delta:
+            item.is_alternative = True
     return best_index

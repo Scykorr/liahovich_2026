@@ -19,19 +19,38 @@ class AnalysisConfigForm(forms.Form):
     feature_combo_max = forms.IntegerField(label="Признаков макс.", min_value=2, max_value=8, initial=4)
     corr_threshold = forms.FloatField(label="Порог |корреляции Пирсона|", min_value=0.5, max_value=1.0, initial=0.80)
     vif_threshold = forms.FloatField(label="Порог VIF", min_value=1.0, max_value=20.0, initial=5.0)
-    min_unique = forms.IntegerField(label="Мин. уникальных значений", min_value=2, initial=3)
+    feature_screen_mode = forms.ChoiceField(
+        label="Режим корреляции и VIF",
+        choices=[
+            ("diagnostic", "диагностика по каждой комбинации"),
+            ("strict", "строгий: удалять признаки до перебора"),
+        ],
+        initial="diagnostic",
+    )
+    min_unique = forms.IntegerField(label="Мин. уникальных значений", min_value=1, initial=2)
     min_variance = forms.FloatField(label="Мин. дисперсия", min_value=0.0, initial=1e-12)
     min_cluster_share = forms.FloatField(label="Мин. доля кластера", min_value=0.0, max_value=0.5, initial=0.05)
     n_init = forms.IntegerField(label="Инициализаций KMeans", min_value=20, initial=20)
-    bootstrap_repeats = forms.IntegerField(label="Повторы бутстрэпа", min_value=5, max_value=500, initial=100)
-    bootstrap_fraction = forms.FloatField(label="Доля подвыборки", min_value=0.5, max_value=0.95, initial=0.80)
-    bootstrap_top_n = forms.IntegerField(label="Топ моделей для индекса Рэнда", min_value=1, max_value=50, initial=10)
+    subsample_repeats = forms.IntegerField(
+        label="Повторы стратифицированной подвыборки", min_value=0, max_value=500, initial=100
+    )
+    subsample_fraction = forms.FloatField(label="Доля подвыборки", min_value=0.5, max_value=0.95, initial=0.80)
+    subsample_top_n = forms.IntegerField(
+        label="Моделей для проверки устойчивости", min_value=1, max_value=50, initial=5
+    )
+    silhouette_max_rows = forms.IntegerField(
+        label="Макс. строк для силуэта (0 — все)", min_value=0, max_value=100000, initial=2000
+    )
+    stability_ari_mean_min = forms.FloatField(label="Порог среднего ARI", min_value=0, max_value=1, initial=0.75)
+    stability_ari_p10_min = forms.FloatField(label="Порог P10 ARI", min_value=0, max_value=1, initial=0.60)
     sil_weight = forms.FloatField(label="Вес силуэта", min_value=0, max_value=1, initial=0.45)
     ch_weight = forms.FloatField(label="Вес Калински–Харабаша", min_value=0, max_value=1, initial=0.30)
     db_weight = forms.FloatField(label="Вес Дэвиса–Болдина (инв.)", min_value=0, max_value=1, initial=0.25)
     internal_weight = forms.FloatField(label="Вес внутренней оценки", min_value=0, max_value=1, initial=0.65)
     ari_weight = forms.FloatField(label="Вес индекса Рэнда", min_value=0, max_value=1, initial=0.35)
-    simplicity_delta = forms.FloatField(label="Порог упрощения модели", min_value=0, max_value=0.2, initial=0.02)
+    simplicity_delta = forms.FloatField(
+        label="Порог показа альтернатив по внутреннему баллу", min_value=0, max_value=0.2, initial=0.02
+    )
     outlier_zscore = forms.FloatField(label="Z-оценка выбросов", min_value=2.0, max_value=10.0, initial=4.0)
     missing_rule = forms.ChoiceField(
         label="Пропуски/ошибки строк",

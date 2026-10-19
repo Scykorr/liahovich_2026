@@ -2,11 +2,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-from django.core.files.uploadedfile import SimpleUploadedFile
+from analytics_core.runtime import configure_threads
 
-from apps.accounts.models import User
-from apps.projects.models import Project, ProjectMembership
+configure_threads()
+
+import pytest  # noqa: E402
+from django.core.files.uploadedfile import SimpleUploadedFile  # noqa: E402
+
+from apps.accounts.models import User  # noqa: E402
+from apps.projects.models import Project, ProjectMembership  # noqa: E402
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 

@@ -53,6 +53,7 @@ class AnalysisRun(TimestampedUUIDModel):
     n_excluded = models.PositiveIntegerField(default=0)
     warnings_json = models.JSONField(default=list)
     outlier_ids = models.JSONField(default=list)
+    summary_json = models.JSONField(default=dict)
 
     class Meta:
         ordering = ["-created_at"]
@@ -90,8 +91,17 @@ class ModelCandidate(models.Model):
     min_cluster_share = models.FloatField(null=True, blank=True)
     internal_score = models.FloatField(null=True, blank=True)
     ari_mean = models.FloatField(null=True, blank=True)
+    ari_p10 = models.FloatField(null=True, blank=True)
+    ari_p90 = models.FloatField(null=True, blank=True)
+    ari_sd = models.FloatField(null=True, blank=True)
     ari_percentile = models.FloatField(null=True, blank=True)
     total_score = models.FloatField(null=True, blank=True)
+    stability_successes = models.PositiveIntegerField(null=True, blank=True)
+    passes_stability = models.BooleanField(default=False)
+    is_alternative = models.BooleanField(default=False)
+    silhouette_rows = models.PositiveIntegerField(default=0)
+    diagnostics = models.JSONField(default=list)
+    stability_json = models.JSONField(default=dict)
     rejected = models.BooleanField(default=False)
     reject_reason = models.TextField(blank=True)
     n_used = models.IntegerField(default=0)

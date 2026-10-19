@@ -23,7 +23,7 @@ def test_export_csv_protected(analyst, project, valid_csv_file) -> None:
         user=analyst,
         dataset=dataset,
         config=PipelineConfig(
-            seed=1, k_min=2, k_max=2, feature_combo_min=2, feature_combo_max=2, bootstrap_repeats=3, bootstrap_top_n=1
+            seed=1, k_min=2, k_max=2, feature_combo_min=2, feature_combo_max=2, subsample_repeats=3, subsample_top_n=1
         ),
     )
     execute_run(str(run.uuid))

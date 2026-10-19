@@ -64,10 +64,14 @@ def test_http_wizard_and_exports(client, analyst, viewer, project, valid_csv_fil
         "min_unique": 3,
         "min_variance": 1e-12,
         "min_cluster_share": 0.05,
+        "feature_screen_mode": "diagnostic",
         "n_init": 20,
-        "bootstrap_repeats": 5,
-        "bootstrap_fraction": 0.8,
-        "bootstrap_top_n": 2,
+        "subsample_repeats": 5,
+        "subsample_fraction": 0.8,
+        "subsample_top_n": 2,
+        "silhouette_max_rows": 2000,
+        "stability_ari_mean_min": 0.75,
+        "stability_ari_p10_min": 0.60,
         "sil_weight": 0.45,
         "ch_weight": 0.30,
         "db_weight": 0.25,
@@ -138,7 +142,7 @@ def test_admin_users_and_task(client, admin_user, analyst, project, valid_csv_fi
         user=analyst,
         dataset=dataset,
         config=PipelineConfig(
-            seed=2, k_min=2, k_max=2, feature_combo_min=2, feature_combo_max=2, bootstrap_repeats=3, bootstrap_top_n=1
+            seed=2, k_min=2, k_max=2, feature_combo_min=2, feature_combo_max=2, subsample_repeats=3, subsample_top_n=1
         ),
     )
     assert run_analysis_task.run(str(run.uuid)) == "succeeded"

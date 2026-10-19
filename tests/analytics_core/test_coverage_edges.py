@@ -42,7 +42,7 @@ def test_pipeline_guards() -> None:
     with pytest.raises(PipelineError):
         run_pipeline(
             _rows(),
-            PipelineConfig(k_min=2, k_max=2, feature_combo_min=2, feature_combo_max=2, bootstrap_repeats=2),
+            PipelineConfig(k_min=2, k_max=2, feature_combo_min=2, feature_combo_max=2, subsample_repeats=2),
             cancelled=lambda: True,
         )
     with pytest.raises(PipelineError):

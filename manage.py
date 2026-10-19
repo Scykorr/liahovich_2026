@@ -7,6 +7,10 @@ import os
 import sys
 from pathlib import Path
 
+from analytics_core.runtime import configure_threads
+
+configure_threads()
+
 
 def main() -> None:
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.development")

@@ -173,10 +173,10 @@ CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "default-src": ["'self'"],
-        "script-src": ["'self'", "https://cdn.jsdelivr.net"],
-        "style-src": ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
+        "script-src": ["'self'"],
+        "style-src": ["'self'", "'unsafe-inline'"],
         "img-src": ["'self'", "data:"],
-        "font-src": ["'self'", "https://cdn.jsdelivr.net", "data:"],
+        "font-src": ["'self'", "data:"],
         "connect-src": ["'self'"],
         "frame-ancestors": ["'none'"],
         "base-uri": ["'self'"],

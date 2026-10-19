@@ -4,6 +4,17 @@ Production-ready Django-приложение для воспроизводимо
 
 Стек: Python 3.12, Django 5.2 LTS, PostgreSQL 16, Redis, Celery, pandas/numpy/scipy/scikit-learn/statsmodels, Plotly, Bootstrap 5, HTMX.
 
+Bootstrap, HTMX и Plotly лежат в `static/vendor` и не загружаются из интернета. Для расчётов достаточно локально установленных библиотек Python.
+
+Синтетический контрольный набор 2026 лежит в `data/synthetic`. Эталонные группы не загружаются как признаки. После создания пользователя-аналитика:
+
+```powershell
+python manage.py load_synthetic --username analyst
+python manage.py load_synthetic --username analyst --analyze
+```
+
+`--analyze` повторяет поиск из паспорта эксперимента и может занять несколько минут.
+
 Для пошагового локального запуска на Windows и Linux см. [LOCAL.md](LOCAL.md).
 
 Версия продукта — в [CHANGELOG.md](CHANGELOG.md). План следующих выпусков — в [ROADMAP.md](ROADMAP.md).

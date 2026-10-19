@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from celery import Celery
+from analytics_core.runtime import configure_threads
+
+configure_threads()
+
+from celery import Celery  # noqa: E402
 
 os_env_loaded = False
 

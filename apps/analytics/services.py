@@ -190,8 +190,17 @@ def _persist_result(run: AnalysisRun, result) -> None:
             min_cluster_share=candidate.min_cluster_share,
             internal_score=candidate.internal_score,
             ari_mean=candidate.ari_mean,
+            ari_p10=candidate.ari_p10,
+            ari_p90=candidate.ari_p90,
+            ari_sd=candidate.ari_sd,
             ari_percentile=candidate.ari_percentile,
             total_score=candidate.total_score,
+            stability_successes=candidate.stability_successes,
+            passes_stability=candidate.passes_stability,
+            is_alternative=candidate.is_alternative,
+            silhouette_rows=candidate.silhouette_rows,
+            diagnostics=candidate.diagnostics,
+            stability_json={"indices": candidate.stability_indices, "repeats": candidate.stability_repeats},
             rejected=candidate.rejected,
             reject_reason=candidate.reject_reason,
             n_used=candidate.n_used,
@@ -254,6 +263,15 @@ def _persist_result(run: AnalysisRun, result) -> None:
     run.n_excluded = result.n_excluded
     run.warnings_json = result.warnings
     run.outlier_ids = result.outlier_ids
+    run.summary_json = {
+        "fixed_leader": result.fixed_leader,
+        "models_calculated": result.models_calculated,
+        "models_admissible": result.models_admissible,
+        "models_stability_checked": result.models_stability_checked,
+        "models_stability_passed": result.models_stability_passed,
+        "feature_screen_mode": result.config.feature_screen_mode,
+        "subsample": "stratified_without_replacement",
+    }
     run.status = AnalysisRun.Status.SUCCEEDED
     run.progress = 100
     run.progress_message = "Готово"

@@ -15,7 +15,8 @@
       <th>Дэвис–Болдин</th>
       <th>Мин. доля</th>
       <th><a href="?sort=-internal_score">Внутр. балл</a></th>
-      <th>Индекс Рэнда</th>
+      <th>ARI, среднее</th>
+      <th>ARI, P10</th>
       <th><a href="?sort=-total_score">Итоговый балл</a></th>
       <th>Примечание</th>
     </tr>
@@ -31,8 +32,15 @@
       <td>{{ item.min_cluster_share|floatformat:3 }}</td>
       <td>{{ item.internal_score|floatformat:3 }}</td>
       <td>{{ item.ari_mean|floatformat:3 }}</td>
+      <td>{{ item.ari_p10|floatformat:3 }}</td>
       <td>{{ item.total_score|floatformat:3 }}</td>
-      <td>{% if item.rejected %}{{ item.reject_reason }}{% elif run.recommended_candidate_id == item.id %}рекомендована{% endif %}</td>
+      <td>
+        {% if item.rejected %}{{ item.reject_reason }}
+        {% elif run.recommended_candidate_id == item.id %}рекомендована
+        {% elif item.is_alternative %}альтернатива
+        {% elif item.passes_stability %}прошла порог устойчивости
+        {% endif %}
+      </td>
     </tr>
   {% endfor %}
   </tbody>

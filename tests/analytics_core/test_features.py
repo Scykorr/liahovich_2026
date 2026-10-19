@@ -5,6 +5,13 @@ import pandas as pd
 from analytics_core.features import correlation_screen, drop_low_information, iterative_vif
 
 
+def test_binary_feature_kept_when_min_unique_is_two() -> None:
+    df = pd.DataFrame({"flag": [0.0, 1.0, 0.0, 1.0], "ok": [1.0, 2.0, 4.0, 8.0]})
+    kept, dropped = drop_low_information(df, min_unique=2, min_variance=1e-8)
+    assert "flag" in kept.columns
+    assert not dropped
+
+
 def test_drop_low_unique_and_variance() -> None:
     df = pd.DataFrame(
         {

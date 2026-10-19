@@ -204,7 +204,7 @@ def _territory_warnings(rows: list[PrecinctRow], issues: list[ValidationIssue]) 
                     level="warning",
                     code="SMALL_TERRITORY",
                     field="territory_code",
-                    message=f"Территория {code} содержит только {count} УИК — стратификация bootstrap будет неустойчивой",
+                    message=f"Территория {code} содержит только {count} УИК — стратифицированная подвыборка будет неустойчивой",
                     territory_code=code,
                     details={"count": count},
                 )

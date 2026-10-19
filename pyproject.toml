@@ -1,6 +1,6 @@
 [project]
 name = "liahovich-2026"
-version = "1.0.0"
+version = "1.2.0"
 description = "Воспроизводимый кластерный анализ агрегированных результатов голосования по УИК"
 requires-python = ">=3.12"
 
@@ -16,6 +16,17 @@ ignore = ["N806", "N803", "E501", "B905"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["apps", "analytics_core", "config"]
+
+[tool.ruff.lint.per-file-ignores]
+"analytics_core/pipeline.py" = ["E402"]
+"analytics_core/clustering.py" = ["E402"]
+"analytics_core/features.py" = ["E402"]
+"analytics_core/stability.py" = ["E402"]
+"tests/conftest.py" = ["E402"]
+"config/celery.py" = ["E402"]
+"config/wsgi.py" = ["E402"]
+"config/asgi.py" = ["E402"]
+"manage.py" = ["E402"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"

@@ -5,7 +5,8 @@
 <p class="page-kicker">Модель</p>
 <h1 class="h3">Модель, {{ candidate.k|ru_clusters }}</h1>
 {% include "includes/viz_disclaimer.html" with n_used=n_used n_excluded=n_excluded denominator="УИК, прошедшие отбор признаков" %}
-<p>Признаки: {{ candidate.features|ru_features }}. Масштабирование: {{ candidate.scaler|ru_label }}. Итоговый балл: {{ candidate.total_score|floatformat:3 }}</p>
+<p>Признаки: {{ candidate.features|ru_features }}. Масштабирование: {{ candidate.scaler|ru_label }}. Внутренний балл: {{ candidate.internal_score|floatformat:3 }}. ARI среднее / P10: {{ candidate.ari_mean|floatformat:3 }} / {{ candidate.ari_p10|floatformat:3 }}.</p>
+{% if candidate.diagnostics %}<p class="small text-muted">Диагностика комбинации: {{ candidate.diagnostics }}</p>{% endif %}
 <form method="post" class="mb-3">
   {% csrf_token %}
   <button class="btn btn-primary" name="select" value="1">Выбрать модель</button>
@@ -65,7 +66,10 @@ async function loadChart(kind, target) {
     Plotly.newPlot(target, traces, {title: "Ящик с усами (знаменатель: УИК отбора)"});
   }
   if (kind === "silhouette") {
-    Plotly.newPlot(target, [{y: payload.data.samples, type: "bar"}], {title: "Значения силуэта"});
+    const silNote = payload.data.silhouette_rows && payload.data.n_used && payload.data.silhouette_rows < payload.data.n_used
+      ? " (подвыборка " + payload.data.silhouette_rows + " из " + payload.data.n_used + ")"
+      : "";
+    Plotly.newPlot(target, [{y: payload.data.samples, type: "bar"}], {title: "Значения силуэта" + silNote});
   }
   if (kind === "tik") {
     const territories = Object.keys(payload.data);

@@ -42,8 +42,8 @@ def test_full_flow_eager_celery(client, analyst, viewer, project, valid_csv_file
         k_max=3,
         feature_combo_min=2,
         feature_combo_max=2,
-        bootstrap_repeats=5,
-        bootstrap_top_n=2,
+        subsample_repeats=5,
+        subsample_top_n=2,
         n_init=20,
     )
     run = create_run(user=analyst, dataset=dataset, config=config)
@@ -78,8 +78,8 @@ def test_same_seed_reproduces(analyst, project, valid_csv_file) -> None:
         k_max=2,
         feature_combo_min=2,
         feature_combo_max=2,
-        bootstrap_repeats=4,
-        bootstrap_top_n=1,
+        subsample_repeats=4,
+        subsample_top_n=1,
         n_init=20,
     )
     run_a = create_run(user=analyst, dataset=dataset, config=config)

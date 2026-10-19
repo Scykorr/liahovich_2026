@@ -1,0 +1,102 @@
+{
+  "purpose": "Synthetic validation only; no real voting data",
+  "seed": 20261019,
+  "rows": 600,
+  "territories": 12,
+  "latent_groups": 3,
+  "subset_count": 22,
+  "admissible_models": 109,
+  "pipeline": "StandardScaler, KMeans n_init=20, k=2..6, 5% min, rank weights .45/.30/.25, top-5 subsampling 100x at 80% stratified by territory",
+  "software": {
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "scikit_learn": "1.8.0"
+  },
+  "files": {
+    "Ляхович_синтетические_данные_2026.csv": "a45ebf6bc1d9ad8dc3dad500f846167944ed3f8085e02394397389d0a69de003",
+    "Ляхович_эталонные_группы_ТОЛЬКО_для_проверки.csv": "b2ffca33d52b02b8f5117703e6806e47a6104b9c091c07998dd4a21f27052695"
+  },
+  "top5": [
+    {
+      "features": "T+B",
+      "k": 3,
+      "sil": 0.5865065918530457,
+      "ch": 1986.849114978149,
+      "db": 0.5668585135668277,
+      "smallest": 195,
+      "external_ari": 0.9752324006948598,
+      "score": 1.0,
+      "ari_mean": 0.9981817742773501,
+      "ari_p10": 0.9936840590165731,
+      "ari_sd": 0.0032324790991400823,
+      "ari_p90": 1.0
+    },
+    {
+      "features": "T+B",
+      "k": 2,
+      "sil": 0.5538471481591989,
+      "ch": 1296.3873794295762,
+      "db": 0.601382141589418,
+      "smallest": 246,
+      "external_ari": 0.481328971712507,
+      "score": 0.9824074074074074,
+      "ari_mean": 0.9685520303961985,
+      "ari_p10": 0.9093507217013026,
+      "ari_sd": 0.04791728637273055,
+      "ari_p90": 1.0
+    },
+    {
+      "features": "T+C",
+      "k": 2,
+      "sil": 0.4950528133998224,
+      "ch": 909.9219914320892,
+      "db": 0.7379515651594958,
+      "smallest": 285,
+      "external_ari": 0.4411025680676546,
+      "score": 0.9731481481481482,
+      "ari_mean": 0.9831626041399504,
+      "ari_p10": 0.9668753977884622,
+      "ari_sd": 0.013009088134681098,
+      "ari_p90": 1.0
+    },
+    {
+      "features": "T+B",
+      "k": 4,
+      "sil": 0.49275821098526723,
+      "ch": 1621.2937711298741,
+      "db": 0.8115642599230583,
+      "smallest": 96,
+      "external_ari": 0.8457538667252552,
+      "score": 0.9731481481481482,
+      "ari_mean": 0.9766909043857395,
+      "ari_p10": 0.9483941177709113,
+      "ari_sd": 0.0314508380736053,
+      "ari_p90": 1.0
+    },
+    {
+      "features": "T+B+C",
+      "k": 2,
+      "sil": 0.4713504090024677,
+      "ch": 876.5972048100748,
+      "db": 0.7767423972227201,
+      "smallest": 286,
+      "external_ari": 0.4457935957520311,
+      "score": 0.9569444444444444,
+      "ari_mean": 0.9639085039626708,
+      "ari_p10": 0.918232695136172,
+      "ari_sd": 0.02989758869703696,
+      "ari_p90": 1.0
+    }
+  ],
+  "null_control_best_silhouette": {
+    "features": "T+D",
+    "k": 3,
+    "sil": 0.34926786439197
+  },
+  "limitations": [
+    "Synthetic latent groups are not empirical observations",
+    "External ARI uses hidden labels only after unsupervised ranking",
+    "No validation of web implementation or real-world applicability",
+    "Synthetic generator and evaluation are supplied for independent reproduction"
+  ]
+}

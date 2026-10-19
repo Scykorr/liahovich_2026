@@ -115,8 +115,8 @@ class Command(BaseCommand):
             k_max=4,
             feature_combo_min=2,
             feature_combo_max=3,
-            bootstrap_repeats=12,
-            bootstrap_top_n=5,
+            subsample_repeats=12,
+            subsample_top_n=5,
             n_init=20,
         )
         self.stdout.write("Считается кластеризация, это может занять минуту...")

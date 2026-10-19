@@ -290,6 +290,8 @@ def candidate_chart_api(request: HttpRequest, candidate_id: int, kind: str) -> J
         data = {
             "labels": candidate.labels,
             "samples": candidate.silhouette_samples,
+            "silhouette_rows": candidate.silhouette_rows,
+            "n_used": candidate.n_used,
         }
     elif kind == "tik":
         data = candidate.tik_distribution

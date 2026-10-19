@@ -1,10 +1,18 @@
 from __future__ import annotations
 
-import numpy as np
-import pandas as pd
-from statsmodels.stats.outliers_influence import variance_inflation_factor
+import math
 
-from analytics_core.types import DroppedFeature
+from analytics_core.runtime import configure_threads
+
+configure_threads()
+
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+from statsmodels.stats.outliers_influence import variance_inflation_factor  # noqa: E402
+
+from analytics_core.types import DroppedFeature  # noqa: E402
+
+EXACT_CORRELATION = 0.999
 
 
 def drop_low_information(
@@ -127,3 +135,46 @@ def iterative_vif(
                 vifs.append(float("inf"))
         final_vifs = dict(zip(remaining, vifs, strict=True))
     return work[remaining].copy(), dropped, final_vifs
+
+
+def combo_diagnostics(
+    frame: pd.DataFrame,
+    columns: list[str],
+    corr_threshold: float = 0.80,
+    vif_threshold: float = 5.0,
+) -> tuple[list[str], str]:
+    """Предупреждения по комбинации. Точный дубль возвращается причиной отклонения."""
+    notes: list[str] = []
+    if len(columns) < 2:
+        return notes, ""
+    work = frame[columns].astype(float)
+    corr = work.corr(method="pearson").abs()
+    for index, left in enumerate(columns):
+        for right in columns[index + 1 :]:
+            value = corr.at[left, right]
+            if pd.isna(value):
+                return notes, f"Точный алгебраический дубль: корреляция «{left}» и «{right}» не определена"
+            value = float(value)
+            if value >= EXACT_CORRELATION:
+                return notes, f"Точный алгебраический дубль: |r|={value:.3f} между «{left}» и «{right}»"
+            if value >= corr_threshold:
+                notes.append(
+                    f"|Pearson r|={value:.3f} между «{left}» и «{right}» (порог {corr_threshold:g})"
+                )
+    matrix = work.to_numpy(dtype=float)
+    centered = matrix - matrix.mean(axis=0, keepdims=True)
+    rank = int(np.linalg.matrix_rank(centered, tol=1e-8))
+    if rank < len(columns):
+        return notes, "Точный алгебраический дубль: столбцы линейно зависимы"
+    for index, name in enumerate(columns):
+        try:
+            vif = float(variance_inflation_factor(matrix, index))
+        except (ValueError, ZeroDivisionError):
+            vif = float("inf")
+        if math.isnan(vif):
+            vif = float("inf")
+        if math.isinf(vif):
+            return notes, f"Точный алгебраический дубль: бесконечный VIF у «{name}»"
+        if vif >= vif_threshold:
+            notes.append(f"VIF={vif:.3f} у «{name}» (порог {vif_threshold:g})")
+    return notes, ""

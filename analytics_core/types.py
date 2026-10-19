@@ -39,25 +39,40 @@ class DroppedFeature:
     details: dict[str, Any] = field(default_factory=dict)
 
 
+FeatureScreenMode = Literal["diagnostic", "strict"]
+
+_CONFIG_ALIASES = {
+    "bootstrap_repeats": "subsample_repeats",
+    "bootstrap_fraction": "subsample_fraction",
+    "bootstrap_top_n": "subsample_top_n",
+}
+
+
 @dataclass
 class PipelineConfig:
     seed: int = 42
     missing_rule: str = "error_blocks"
     outlier_rule: str = "mark_only"
-    min_unique: int = 3
+    min_unique: int = 2
     min_variance: float = 1e-12
     corr_threshold: float = 0.80
     vif_threshold: float = 5.0
+    feature_screen_mode: FeatureScreenMode = "diagnostic"
     feature_combo_min: int = 2
     feature_combo_max: int = 4
+    combo_must_include: list[str] = field(default_factory=list)
+    combo_must_include_any: list[str] = field(default_factory=list)
     k_min: int = 2
     k_max: int = 6
     scaler: ScalerName = "standard"
     n_init: int = 20
     min_cluster_share: float = 0.05
-    bootstrap_repeats: int = 100
-    bootstrap_fraction: float = 0.80
-    bootstrap_top_n: int = 10
+    subsample_repeats: int = 100
+    subsample_fraction: float = 0.80
+    subsample_top_n: int = 5
+    silhouette_max_rows: int = 2000
+    stability_ari_mean_min: float = 0.75
+    stability_ari_p10_min: float = 0.60
     sil_weight: float = 0.45
     ch_weight: float = 0.30
     db_weight: float = 0.25
@@ -76,16 +91,22 @@ class PipelineConfig:
             "min_variance": self.min_variance,
             "corr_threshold": self.corr_threshold,
             "vif_threshold": self.vif_threshold,
+            "feature_screen_mode": self.feature_screen_mode,
             "feature_combo_min": self.feature_combo_min,
             "feature_combo_max": self.feature_combo_max,
+            "combo_must_include": list(self.combo_must_include),
+            "combo_must_include_any": list(self.combo_must_include_any),
             "k_min": self.k_min,
             "k_max": self.k_max,
             "scaler": self.scaler,
             "n_init": self.n_init,
             "min_cluster_share": self.min_cluster_share,
-            "bootstrap_repeats": self.bootstrap_repeats,
-            "bootstrap_fraction": self.bootstrap_fraction,
-            "bootstrap_top_n": self.bootstrap_top_n,
+            "subsample_repeats": self.subsample_repeats,
+            "subsample_fraction": self.subsample_fraction,
+            "subsample_top_n": self.subsample_top_n,
+            "silhouette_max_rows": self.silhouette_max_rows,
+            "stability_ari_mean_min": self.stability_ari_mean_min,
+            "stability_ari_p10_min": self.stability_ari_p10_min,
             "sil_weight": self.sil_weight,
             "ch_weight": self.ch_weight,
             "db_weight": self.db_weight,
@@ -98,9 +119,24 @@ class PipelineConfig:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> PipelineConfig:
+        payload = dict(data)
+        for old, new in _CONFIG_ALIASES.items():
+            if old in payload and new not in payload:
+                payload[new] = payload[old]
         known = {f.name for f in cls.__dataclass_fields__.values()}  # type: ignore[attr-defined]
-        payload = {key: value for key, value in data.items() if key in known}
-        return cls(**payload)
+        cleaned = {key: value for key, value in payload.items() if key in known}
+        return cls(**cleaned)
+
+
+@dataclass
+class StabilityReport:
+    ari_mean: float | None
+    ari_p10: float | None
+    ari_p90: float | None
+    ari_sd: float | None
+    successes: int
+    repeats: int
+    indices: list[list[int]]
 
 
 @dataclass
@@ -114,8 +150,18 @@ class CandidateResult:
     min_cluster_share: float
     internal_score: float | None = None
     ari_mean: float | None = None
+    ari_p10: float | None = None
+    ari_p90: float | None = None
+    ari_sd: float | None = None
     ari_percentile: float | None = None
     total_score: float | None = None
+    stability_successes: int | None = None
+    stability_repeats: int = 0
+    stability_indices: list[list[int]] = field(default_factory=list)
+    diagnostics: list[str] = field(default_factory=list)
+    passes_stability: bool = False
+    is_alternative: bool = False
+    silhouette_rows: int = 0
     rejected: bool = False
     reject_reason: str = ""
     n_used: int = 0
@@ -148,4 +194,9 @@ class PipelineResult:
     candidates: list[CandidateResult]
     recommended_index: int | None
     library_versions: dict[str, str]
+    fixed_leader: str = ""
+    models_calculated: int = 0
+    models_admissible: int = 0
+    models_stability_checked: int = 0
+    models_stability_passed: int = 0
     warnings: list[str] = field(default_factory=list)
