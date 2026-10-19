@@ -6,6 +6,8 @@ Production-ready Django-приложение для воспроизводимо
 
 Для пошагового локального запуска на Windows и Linux см. [LOCAL.md](LOCAL.md).
 
+Версия продукта — в [CHANGELOG.md](CHANGELOG.md). План следующих выпусков — в [ROADMAP.md](ROADMAP.md).
+
 ## Быстрый старт (Windows)
 
 ```powershell
